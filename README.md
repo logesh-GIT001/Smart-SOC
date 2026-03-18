@@ -153,10 +153,10 @@ Submit a network flow for classification.
 
 | Name | Role |
 |---|---|
-| (your name) | ML lead / model training |
-| Teammate 2 | Data pipeline & EDA |
-| Teammate 3 | XAI integration & explanations |
-| Teammate 4 | API & dashboard |
+| Member 1 | ML lead / model training |
+| Member 2 | Data pipeline & EDA |
+| Menber 3 | XAI integration & explanations |
+| Member 4 | API & dashboard |
 
 ---
 

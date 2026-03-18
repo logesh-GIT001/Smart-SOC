@@ -1,0 +1,13 @@
+__pycache__/
+*.pkl
+*.h5
+*.pt
+.venv/
+venv/
+data/raw/
+data/processed/
+*.csv
+.env
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db

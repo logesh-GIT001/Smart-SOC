@@ -78,12 +78,27 @@ def triage(flow: NetworkFlow):
     class_shap = shap_values[0, :, prediction]
 
     top_features = pd.DataFrame({
-        "feature": feature_names,
-        "impact": np.abs(class_shap)
-    }).sort_values("impact", ascending=False).head(5)
+    "feature": feature_names,
+    "impact": np.abs(class_shap)
+}).sort_values("impact", ascending=False).head(5)
 
-    return {
-        "prediction": labels[prediction],
-        "confidence": round(confidence * 100, 2),
-        "explanation": top_features.to_dict(orient="records")
-    }
+# Make impact human friendly
+def impact_label(score):
+    if score >= 2.0:   return "🔴 CRITICAL"
+    elif score >= 1.0: return "🟠 HIGH"
+    elif score >= 0.5: return "🟡 MEDIUM"
+    else:              return "🟢 LOW"
+
+explanation = []
+for _, row in top_features.iterrows():
+    explanation.append({
+        "feature": row["feature"],
+        "impact_score": round(row["impact"], 3),
+        "impact_level": impact_label(row["impact"])
+    })
+
+return {
+    "prediction": labels[prediction],
+    "confidence": round(confidence * 100, 2),
+    "explanation": explanation
+}

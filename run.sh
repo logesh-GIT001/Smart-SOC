@@ -1,6 +1,5 @@
 #!/bin/bash
-
-echo "🛡️  Starting Smart SOC..."
+echo "🛡  Starting Smart SOC..."
 
 # Activate virtual environment
 source smart-soc-env/bin/activate
@@ -18,4 +17,3 @@ echo "🎨 Starting Dashboard on port 8501..."
 
 # Cleanup on exit
 kill $API_PID
-EOF

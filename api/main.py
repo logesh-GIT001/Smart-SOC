@@ -7,15 +7,12 @@ import pandas as pd
 
 app = FastAPI(title="Smart SOC API", version="1.0")
 
-# Load model and scaler
 model = joblib.load("models/saved/xgb_model.pkl")
 scaler = joblib.load("models/saved/scaler.pkl")
 feature_names = pd.read_csv("models/saved/feature_names.csv").iloc[:, 0].tolist()
 
-# Label mapping
 labels = {0: "Normal", 1: "DoS", 2: "Probe", 3: "R2L", 4: "U2R"}
 
-# Input schema
 class NetworkFlow(BaseModel):
     duration: float = 0
     protocol_type: int = 1
@@ -64,41 +61,37 @@ def home():
 
 @app.post("/triage")
 def triage(flow: NetworkFlow):
-    # Prepare input
     input_data = pd.DataFrame([flow.dict()], columns=feature_names)
     input_scaled = scaler.transform(input_data)
 
-    # Predict
     prediction = model.predict(input_scaled)[0]
     confidence = float(model.predict_proba(input_scaled).max())
 
-    # SHAP explanation
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(input_data)
     class_shap = shap_values[0, :, prediction]
 
     top_features = pd.DataFrame({
-    "feature": feature_names,
-    "impact": np.abs(class_shap)
-}).sort_values("impact", ascending=False).head(5)
+        "feature": feature_names,
+        "impact": np.abs(class_shap)
+    }).sort_values("impact", ascending=False).head(5)
 
-# Make impact human friendly
-def impact_label(score):
-    if score >= 2.0:   return "🔴 CRITICAL"
-    elif score >= 1.0: return "🟠 HIGH"
-    elif score >= 0.5: return "🟡 MEDIUM"
-    else:              return "🟢 LOW"
+    def impact_label(score):
+        if score >= 2.0:   return "🔴 CRITICAL"
+        elif score >= 1.0: return "🟠 HIGH"
+        elif score >= 0.5: return "🟡 MEDIUM"
+        else:              return "🟢 LOW"
 
-explanation = []
-for _, row in top_features.iterrows():
-    explanation.append({
-        "feature": row["feature"],
-        "impact_score": round(row["impact"], 3),
-        "impact_level": impact_label(row["impact"])
-    })
+    explanation = []
+    for _, row in top_features.iterrows():
+        explanation.append({
+            "feature": row["feature"],
+            "impact_score": round(row["impact"], 3),
+            "impact_level": impact_label(row["impact"])
+        })
 
-return {
-    "prediction": labels[prediction],
-    "confidence": round(confidence * 100, 2),
-    "explanation": explanation
-}
+    return {
+        "prediction": labels[prediction],
+        "confidence": round(confidence * 100, 2),
+        "explanation": explanation
+    }

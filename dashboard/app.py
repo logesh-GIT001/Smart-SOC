@@ -3,18 +3,15 @@ import requests
 import plotly.express as px
 import pandas as pd
 
-# Page config
 st.set_page_config(
     page_title="Smart SOC",
     page_icon="🛡️",
     layout="wide"
 )
 
-# Title
 st.title("🛡️ Smart SOC — ML Threat Triage")
 st.markdown("Submit network traffic data to detect and explain threats in real time.")
 
-# Sidebar inputs
 st.sidebar.header("📥 Network Flow Input")
 
 duration = st.sidebar.number_input("Duration", value=0)
@@ -30,7 +27,6 @@ serror_rate = st.sidebar.slider("Serror Rate", 0.0, 1.0, 0.0)
 dst_host_count = st.sidebar.number_input("Dst Host Count", value=255)
 dst_host_srv_count = st.sidebar.number_input("Dst Host Srv Count", value=255)
 
-# Analyze button
 if st.sidebar.button("🔍 Analyze Traffic"):
     payload = {
         "duration": duration,
@@ -51,7 +47,6 @@ if st.sidebar.button("🔍 Analyze Traffic"):
         response = requests.post("http://127.0.0.1:8000/triage", json=payload)
         result = response.json()
 
-    # Results
     col1, col2 = st.columns(2)
 
     with col1:
@@ -65,24 +60,27 @@ if st.sidebar.button("🔍 Analyze Traffic"):
 
         st.metric("Confidence", f"{confidence}%")
 
+        # Show impact levels
+        st.subheader("🔍 Why this decision?")
+        for item in result['explanation']:
+            st.write(f"**{item['feature']}** → {item['impact_level']} ({item['impact_score']})")
+
     with col2:
-        # Explanation chart
         explanation = result['explanation']
         df = pd.DataFrame(explanation)
 
         fig = px.bar(
             df,
-            x='impact',
+            x='impact_score',
             y='feature',
             orientation='h',
-            title='Top Features — Why this decision?',
-            color='impact',
+            title='Feature Impact',
+            color='impact_score',
             color_continuous_scale='Reds'
         )
         fig.update_layout(height=300)
         st.plotly_chart(fig, use_container_width=True)
 
-    # Raw result
     st.subheader("📊 Full Response")
     st.json(result)
 

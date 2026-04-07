@@ -17,7 +17,7 @@ Security Operations Centers are flooded with alerts — most of which are false 
 
 **Smart SOC solves this with:**
 - Multi-class threat classification — Normal, DoS, Probe, R2L, U2R
-- Real-time triage via REST API
+- Real-time triage via FastAPI (REST endpoint)
 - SHAP explainability — shows analysts *why* each alert was flagged
 - Human-readable impact levels — CRITICAL / HIGH / MEDIUM / LOW
 - Streamlit dashboard for visual alert review
@@ -44,7 +44,7 @@ NSL-KDD Dataset
       ▼
  ┌──────────────────┐    ┌──────────────────────────┐
  │   FastAPI        │    │   Streamlit Dashboard     │
- │   POST /triage   │◄──►│   Visual Alert Review     │
+ │   POST /triage   │◄───│   calls /triage           │
  └──────────────────┘    └──────────────────────────┘
       │
       ▼
@@ -77,7 +77,7 @@ NSL-KDD Dataset
 | Baseline | Random Forest | 73.17% accuracy |
 | Final model | XGBoost | **74.78% accuracy** |
 | XAI | SHAP TreeExplainer | Per-feature impact on every prediction |
-| API | FastAPI REST | Real-time triage + explanation |
+| API | FastAPI endpoint | Real-time triage + explanation |
 | Dashboard | Streamlit + Plotly | Visual interface with impact levels |
 
 ### Attack categories
@@ -132,7 +132,7 @@ Smart-SOC/
 ├── notebooks/
 │   ├── 01_eda.ipynb           # Exploratory data analysis
 │   ├── 02_preprocessing.ipynb # Data cleaning pipeline
-│   ├── 03_model_training.ipynb# RF vs XGBoost comparison
+│   ├── 03_model_training.ipynb # RF vs XGBoost comparison
 │   └── 04_xai_shap.ipynb      # SHAP explanation analysis
 ├── models/
 │   └── saved/
@@ -294,7 +294,6 @@ Submit a network flow for classification and explanation.
 | After SMOTE | 336,715 balanced records |
 
 Download from: [Kaggle — NSL-KDD](https://www.kaggle.com/datasets/hassan06/nslkdd)
-
 
 
 ## 🗺️ Roadmap

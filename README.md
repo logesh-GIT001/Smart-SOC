@@ -157,8 +157,10 @@ Smart-SOC/
 ## 🚀 Getting Started
 
 ### 1. Clone
+```cmd
 git clone https://github.com/logesh-GIT001/Smart-SOC.git
 cd Smart-SOC
+```
 
 ### 2. Create virtual environment
 

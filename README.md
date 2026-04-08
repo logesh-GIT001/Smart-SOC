@@ -156,45 +156,30 @@ Smart-SOC/
 
 ## 🚀 Getting Started
 
-### 1. Clone and install
-
-```bash
+### 1. Clone
 git clone https://github.com/logesh-GIT001/Smart-SOC.git
 cd Smart-SOC
+
+### 2. Create virtual environment
+
+**Linux / macOS:**
+```cmd
 python3 -m venv smart-soc-env
 source smart-soc-env/bin/activate
-pip install -r requirements.txt
+```
+ 
+**Windows:**
+```cmd
+python -m venv smart-soc-env
+smart-soc-env\Scripts\activate
+```
+ 
+
+### 3. Run everything
+```cmd
+python setup_and_run.py
 ```
 
-### 2. Set up environment
-
-```bash
-cp .env.example .env
-```
-
-### 3. Add model files
-
-Train the model by running all cells in `notebooks/03_model_training.ipynb` on Google Colab, then download:
-- `models/saved/xgb_model.pkl`
-- `models/saved/scaler.pkl`
-- `models/saved/feature_names.csv`
-
-### 4. Start everything
-
-```bash
-chmod +x run.sh
-./run.sh
-```
-
-Or manually:
-
-```bash
-# Terminal 1 — API
-uvicorn api.main:app --reload --port 8000
-
-# Terminal 2 — Dashboard
-streamlit run dashboard/app.py
-```
 
 | Service | URL |
 |---|---|

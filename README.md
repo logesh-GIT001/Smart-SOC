@@ -1,55 +1,65 @@
-# 🛡️ Smart SOC — ML-Based Threat Triage with Explainable AI
+# 🛡️ Smart SOC — AI-Powered Threat Triage with Explainable AI
 
-> Automatically classify and prioritize network threats using machine learning, with SHAP-powered explanations so analysts understand *why* each alert was flagged — not just *what* it is.
+> Automatically detect, classify, prioritize, and explain network threats using Machine Learning and Explainable AI (XAI). Built with CICIDS2017, XGBoost, SHAP, FastAPI, and Streamlit.
 
 [![Python](https://img.shields.io/badge/Python-3.10+-blue?style=flat-square&logo=python)](https://python.org)
-[![XGBoost](https://img.shields.io/badge/XGBoost-74.78%25-green?style=flat-square)](https://xgboost.readthedocs.io)
+[![XGBoost](https://img.shields.io/badge/XGBoost-ML-green?style=flat-square)](https://xgboost.readthedocs.io)
 [![FastAPI](https://img.shields.io/badge/FastAPI-REST-teal?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
-[![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-red?style=flat-square&logo=streamlit)](https://streamlit.io)
+[![Streamlit](https://img.shields.io/badge/Streamlit-SOC%20Dashboard-red?style=flat-square&logo=streamlit)](https://streamlit.io)
 [![SHAP](https://img.shields.io/badge/XAI-SHAP-orange?style=flat-square)](https://shap.readthedocs.io)
+[![Dataset](https://img.shields.io/badge/Dataset-CICIDS2017-purple?style=flat-square)]()
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 
 ---
 
 ## 🔍 What This Does
 
-Security Operations Centers are flooded with alerts — most of which are false positives. Analysts waste hours manually investigating noise.
+Security Operations Centers (SOCs) receive thousands of alerts every day. Analysts need to quickly identify real threats, understand why they were detected, and prioritize investigation efforts.
 
-**Smart SOC solves this with:**
-- Multi-class threat classification — Normal, DoS, Probe, R2L, U2R
-- Real-time triage via FastAPI (REST endpoint)
-- SHAP explainability — shows analysts *why* each alert was flagged
-- Human-readable impact levels — CRITICAL / HIGH / MEDIUM / LOW
-- Streamlit dashboard for visual alert review
+**Smart SOC provides:**
+
+- Multi-class network threat classification
+- Real-time threat triage using FastAPI
+- Explainable AI using SHAP
+- SOC-style analyst dashboard
+- Confidence-based severity scoring
+- Threat distribution analytics
+- Feature impact visualization
+- Human-readable alert explanations
 
 ---
 
 ## 🏗️ System Architecture
 
-```
-NSL-KDD Dataset
-      │
-      ▼
- ┌─────────────────────────────────────────────────┐
- │               Data Pipeline                     │
- │  EDA → Encoding → Scaling → SMOTE Balancing     │
- └─────────────────────────────────────────────────┘
-      │
-      ▼
- ┌─────────────────────────────────────────────────┐
- │               ML + XAI Layer                    │
- │  XGBoost Classifier + SHAP TreeExplainer        │
- └─────────────────────────────────────────────────┘
-      │
-      ▼
- ┌──────────────────┐    ┌──────────────────────────┐
- │   FastAPI        │    │   Streamlit Dashboard     │
- │   POST /triage   │◄───│   calls /triage           │
- └──────────────────┘    └──────────────────────────┘
-      │
-      ▼
- {prediction, confidence, explanation}
- CRITICAL / HIGH / MEDIUM / LOW
+```text
+CICIDS2017 Dataset
+        │
+        ▼
+┌─────────────────────────────────────────────────┐
+│                 Data Pipeline                   │
+│      Cleaning → Encoding → Training             │
+└─────────────────────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────────────────────┐
+│                XGBoost Model                    │
+│         Multi-Class Classification              │
+└─────────────────────────────────────────────────┘
+        │
+        ▼
+┌─────────────────────────────────────────────────┐
+│              SHAP Explainability                │
+│         Feature Impact Analysis                 │
+└─────────────────────────────────────────────────┘
+        │
+        ▼
+┌──────────────────┐     ┌────────────────────────┐
+│     FastAPI      │     │  Streamlit Dashboard   │
+│   POST /triage   │◄───►│   SOC Analyst View     │
+└──────────────────┘     └────────────────────────┘
+        │
+        ▼
+Prediction + Confidence + SHAP Explanation
 ```
 
 ---
@@ -57,64 +67,93 @@ NSL-KDD Dataset
 ## ⚙️ Tech Stack
 
 | Layer | Technology | Purpose |
-|---|---|---|
-| ML Model | XGBoost | Threat classification |
-| XAI | SHAP TreeExplainer | Feature-level explanations |
-| API | FastAPI + Uvicorn | Real-time triage endpoint |
-| Dashboard | Streamlit + Plotly | Visual alert interface |
-| Balancing | SMOTE | Handle class imbalance |
-| Dataset | NSL-KDD | Network intrusion data |
+|---------|------------|---------|
+| ML Model | XGBoost | Attack classification |
+| Explainable AI | SHAP TreeExplainer | Prediction explanation |
+| Backend API | FastAPI + Uvicorn | Real-time inference |
+| Dashboard | Streamlit | SOC interface |
+| Visualization | Plotly | Charts & analytics |
+| Dataset | CICIDS2017 | Network intrusion dataset |
 | Language | Python 3.10+ | Core implementation |
 
 ---
 
-## 📊 ML Pipeline Results
+## 🎯 Supported Threat Classes
 
-| Step | Action | Result |
-|---|---|---|
-| EDA | Explored 125,973 records | Found 23 attack types across 5 categories |
-| Preprocessing | Encode + Scale + SMOTE | Balanced to 336,715 training records |
-| Baseline | Random Forest | 73.17% accuracy |
-| Final model | XGBoost | **74.78% accuracy** |
-| XAI | SHAP TreeExplainer | Per-feature impact on every prediction |
-| API | FastAPI endpoint | Real-time triage + explanation |
-| Dashboard | Streamlit + Plotly | Visual interface with impact levels |
-
-### Attack categories
-
-| Category | Examples | Records |
-|---|---|---|
-| Normal | Normal traffic | 67,343 |
-| DoS | neptune, smurf, teardrop | 45,927 |
-| Probe | ipsweep, nmap, portsweep | 11,656 |
-| R2L | ftp_write, guess_passwd | 995 |
-| U2R | buffer_overflow, rootkit | 52 |
+| Class | Description |
+|---------|-------------|
+| Normal | Legitimate traffic |
+| DoS | Denial of Service attacks |
+| Probe | Network reconnaissance |
+| Brute Force | Password guessing attacks |
+| Web Attack | Web exploitation attempts |
+| Botnet | Command-and-control traffic |
 
 ---
 
-## 🔬 XAI — Why This Matters
+## 📊 Dashboard Features
 
-Traditional ML models are black boxes. A SOC analyst can't act on "this is DoS" without knowing *why*.
+### Alert Queue
+- Real-time alert list
+- Severity-based coloring
+- Confidence scoring
+- Attack categorization
 
-Smart SOC uses **SHAP (SHapley Additive exPlanations)** to give a clear reason for every alert:
+### Alert Investigation
+- SHAP feature importance
+- Impact score visualization
+- Analyst-friendly explanations
+- Attack reasoning
 
-| Attack | Top contributing features |
-|---|---|
-| DoS | `count`, `flag`, `dst_host_rerror_rate` |
-| Probe | `src_bytes`, `dst_host_diff_srv_rate` |
-| R2L | `src_bytes`, `dst_host_same_src_port_rate` |
-| U2R | `dst_host_srv_count`, `duration` |
+### Analytics
+- Threat distribution charts
+- Attack frequency tracking
+- Confidence metrics
+- Alert statistics
 
-Every API response includes human-readable impact levels:
+### Quick Simulation
+- Normal Traffic
+- DoS Attack
+- Probe Attack
+- Brute Force Attack
+- Web Attack
+- Botnet Traffic
+
+---
+
+## 🔬 Explainable AI (SHAP)
+
+Traditional ML systems only provide a prediction.
+
+Smart SOC explains:
+
+- Why the model generated an alert
+- Which features influenced the decision
+- How strongly each feature contributed
+- Which indicators analysts should investigate first
+
+Example response:
 
 ```json
 {
   "prediction": "DoS",
-  "confidence": 99.95,
+  "confidence": 99.4,
   "explanation": [
-    { "feature": "count",    "impact_score": 4.34, "impact_level": "🔴 CRITICAL" },
-    { "feature": "flag",     "impact_score": 1.58, "impact_level": "🟠 HIGH" },
-    { "feature": "serror_rate", "impact_score": 0.87, "impact_level": "🟡 MEDIUM" }
+    {
+      "feature": "Flow_Packets_per_s",
+      "impact_score": 4.38,
+      "impact_level": "CRITICAL"
+    },
+    {
+      "feature": "Packet_Length_Mean",
+      "impact_score": 2.11,
+      "impact_level": "HIGH"
+    },
+    {
+      "feature": "Flow_Duration",
+      "impact_score": 1.24,
+      "impact_level": "MEDIUM"
+    }
   ]
 }
 ```
@@ -123,32 +162,33 @@ Every API response includes human-readable impact levels:
 
 ## 📁 Project Structure
 
-```
+```text
 Smart-SOC/
-├── data/
-│   ├── raw/                   # NSL-KDD dataset files
-│   ├── processed/             # Cleaned, scaled, balanced data
-│   └── samples/               # Small sample files for tests
-├── notebooks/
-│   ├── 01_eda.ipynb           # Exploratory data analysis
-│   ├── 02_preprocessing.ipynb # Data cleaning pipeline
-│   ├── 03_model_training.ipynb # RF vs XGBoost comparison
-│   └── 04_xai_shap.ipynb      # SHAP explanation analysis
-├── models/
-│   └── saved/
-│       ├── xgb_model.pkl      # Trained XGBoost model
-│       ├── scaler.pkl         # StandardScaler
-│       └── feature_names.csv  # Feature list
 ├── api/
-│   └── main.py                # FastAPI triage endpoint
+│   └── main.py
+│
 ├── dashboard/
-│   └── app.py                 # Streamlit dashboard
-├── scripts/                   # Utility scripts
-├── tests/                     # Unit tests
-├── docs/                      # Architecture diagrams
+│   └── app.py
+│
+├── models/
+│   ├── model.pkl
+│   ├── scaler.pkl
+│   └── feature_names.pkl
+│
+├── notebooks/
+│   ├── eda.ipynb
+│   ├── preprocessing.ipynb
+│   ├── training.ipynb
+│   └── shap_analysis.ipynb
+│
+├── data/
+│   ├── raw/
+│   └── processed/
+│
+├── docs/
+│
 ├── requirements.txt
-├── .env.example
-├── run.sh                     # Start everything with one command
+├── setup_and_run.py
 └── README.md
 ```
 
@@ -156,35 +196,47 @@ Smart-SOC/
 
 ## 🚀 Getting Started
 
-### 1. Clone
-```cmd
+### Clone Repository
+
+```bash
 git clone https://github.com/logesh-GIT001/Smart-SOC.git
 cd Smart-SOC
 ```
 
-### 2. Create virtual environment
+### Create Virtual Environment
 
-**Linux / macOS:**
-```cmd
-python3 -m venv smart-soc-env
-source smart-soc-env/bin/activate
-```
- 
-**Windows:**
-```cmd
-python -m venv smart-soc-env
-smart-soc-env\Scripts\activate
-```
- 
+Linux / macOS
 
-### 3. Run everything
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+Windows
+
 ```cmd
+python -m venv venv
+venv\Scripts\activate
+```
+
+### Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### Run Project
+
+```bash
 python setup_and_run.py
 ```
 
+---
+
+## 🌐 Services
 
 | Service | URL |
-|---|---|
+|----------|-----|
 | Dashboard | http://localhost:8501 |
 | API | http://localhost:8000 |
 | API Docs | http://localhost:8000/docs |
@@ -193,126 +245,88 @@ python setup_and_run.py
 
 ## 📡 API Reference
 
-### `GET /`
+### GET /
 
-Health check.
+Health check
 
-```json
-{ "message": "Smart SOC API is running! 🚀" }
-```
-
-### `POST /triage`
-
-Submit a network flow for classification and explanation.
-
-**Request:**
 ```json
 {
-  "duration": 0,
-  "protocol_type": 1,
-  "service": 24,
-  "flag": 9,
-  "src_bytes": 215,
-  "dst_bytes": 45076,
-  "logged_in": 1,
-  "count": 1,
-  "srv_count": 1
+  "message": "Smart SOC API is running!"
 }
 ```
 
-**Response — Normal traffic:**
+### POST /triage
+
+Submit network flow features for classification.
+
+Example response:
+
 ```json
 {
-  "prediction": "Normal",
-  "confidence": 94.24,
+  "prediction": "Botnet",
+  "confidence": 98.72,
+  "severity": "critical",
   "explanation": [
-    { "feature": "dst_host_srv_count", "impact_score": 2.166, "impact_level": "🔴 CRITICAL" },
-    { "feature": "hot",                "impact_score": 1.886, "impact_level": "🟠 HIGH" },
-    { "feature": "duration",           "impact_score": 0.839, "impact_level": "🟡 MEDIUM" }
+    {
+      "feature": "Flow_Packets_per_s",
+      "impact_score": 4.21,
+      "impact_level": "CRITICAL"
+    }
   ]
 }
 ```
-
-**Response — DoS attack:**
-```json
-{
-  "prediction": "DoS",
-  "confidence": 99.95,
-  "explanation": [
-    { "feature": "src_bytes", "impact_score": 3.867, "impact_level": "🔴 CRITICAL" },
-    { "feature": "count",     "impact_score": 1.172, "impact_level": "🟠 HIGH" },
-    { "feature": "duration",  "impact_score": 1.073, "impact_level": "🟠 HIGH" }
-  ]
-}
-```
-
-**Impact levels:**
-
-| Level | Score | Meaning |
-|---|---|---|
-| 🔴 CRITICAL | ≥ 2.0 | Primary trigger for this alert |
-| 🟠 HIGH | ≥ 1.0 | Strong contributing factor |
-| 🟡 MEDIUM | ≥ 0.5 | Moderate contribution |
-| 🟢 LOW | < 0.5 | Minor influence |
-
----
-
-## 📓 Notebooks
-
-| Notebook | Description |
-|---|---|
-| `01_eda.ipynb` | Data exploration — class distribution, feature types, missing values |
-| `02_preprocessing.ipynb` | Encoding, scaling, SMOTE balancing |
-| `03_model_training.ipynb` | Train RF and XGBoost, compare metrics, save best model |
-| `04_xai_shap.ipynb` | SHAP analysis — global and per-record explanations |
 
 ---
 
 ## 🗂️ Dataset
 
-**NSL-KDD** — refined version of the KDD Cup 1999 dataset.
+### CICIDS2017
 
-| Property | Value |
-|---|---|
-| Training records | 125,973 |
-| Test records | 22,544 |
-| Features | 41 |
-| Classes | Normal, DoS, Probe, R2L, U2R |
-| After SMOTE | 336,715 balanced records |
+The model is trained using the CICIDS2017 dataset, which contains realistic network traffic and modern attack scenarios.
 
-Download from: [Kaggle — NSL-KDD](https://www.kaggle.com/datasets/hassan06/nslkdd)
+Includes:
 
+- Benign Traffic
+- DoS / DDoS
+- Port Scanning
+- Brute Force
+- Web Attacks
+- Botnet Activity
 
-## 🗺️ Roadmap
+---
 
-- [x] Repo setup and project structure
-- [x] NSL-KDD dataset download and EDA
-- [x] Feature engineering and preprocessing
-- [x] Baseline model — Random Forest (73.17%)
-- [x] XGBoost model (74.78%)
-- [x] SHAP integration — global and per-record
-- [x] FastAPI triage endpoint
-- [x] Streamlit dashboard
-- [x] Human-readable impact levels
-- [ ] LIME explanations (secondary XAI)
-- [ ] Unit tests
-- [ ] Docker containerization
-- [ ] Deploy to cloud (Render / HuggingFace Spaces)
+## 🛣️ Roadmap
+
+- [x] CICIDS2017 preprocessing
+- [x] XGBoost classification
+- [x] SHAP explainability
+- [x] FastAPI inference API
+- [x] Streamlit SOC dashboard
+- [x] Alert severity scoring
+- [x] Threat distribution analytics
+- [ ] Live packet capture
+- [ ] Real network flow monitoring
+- [ ] Suricata integration
+- [ ] Zeek integration
+- [ ] Docker deployment
+- [ ] Cloud deployment
+- [ ] SIEM integration
 
 ---
 
 ## 📚 References
 
-- [NSL-KDD Dataset](https://www.unb.ca/cic/datasets/nsl.html)
-- [SHAP Documentation](https://shap.readthedocs.io)
-- [XGBoost Documentation](https://xgboost.readthedocs.io)
-- [FastAPI Documentation](https://fastapi.tiangolo.com)
-- [Streamlit Documentation](https://streamlit.io)
-- [SMOTE — imbalanced-learn](https://imbalanced-learn.org)
-- [LIME Paper](https://arxiv.org/abs/1602.04938)
+- CICIDS2017 Dataset
+- XGBoost Documentation
+- SHAP Documentation
+- FastAPI Documentation
+- Streamlit Documentation
+- Plotly Documentation
 
 ---
 
 ## 📄 License
 
-MIT License — free to use, modify, and distribute with attribution.
+MIT License
+
+Free to use, modify, and distribute.

@@ -8,9 +8,38 @@ print("   Smart SOC — Automated Setup v2.0")
 print("   Powered by CICIDS-2017 + XGBoost")
 print("=" * 50)
 
+# ── Auto-detect venv or create one ──────────────────
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+VENV_DIR = os.path.join(BASE_DIR, "smart-soc-env")
+
+if sys.platform == "win32":
+    VENV_PYTHON = os.path.join(VENV_DIR, "Scripts", "python.exe")
+    VENV_PIP    = os.path.join(VENV_DIR, "Scripts", "pip.exe")
+    VENV_UV     = os.path.join(VENV_DIR, "Scripts", "uvicorn.exe")
+    VENV_ST     = os.path.join(VENV_DIR, "Scripts", "streamlit.exe")
+else:
+    VENV_PYTHON = os.path.join(VENV_DIR, "bin", "python3")
+    VENV_PIP    = os.path.join(VENV_DIR, "bin", "pip")
+    VENV_UV     = os.path.join(VENV_DIR, "bin", "uvicorn")
+    VENV_ST     = os.path.join(VENV_DIR, "bin", "streamlit")
+
+# If not running inside venv, re-launch with venv Python
+if os.path.exists(VENV_PYTHON) and sys.executable != VENV_PYTHON:
+    print(f"\n🔄 Switching to venv Python...")
+    os.execv(VENV_PYTHON, [VENV_PYTHON] + sys.argv)
+
+# If venv doesn't exist, create it
+if not os.path.exists(VENV_PYTHON):
+    print("\n🔧 Creating virtual environment...")
+    subprocess.check_call([sys.executable, "-m", "venv", VENV_DIR])
+    print("✅ Virtual environment created!")
+    print("🔄 Restarting with venv Python...")
+    os.execv(VENV_PYTHON, [VENV_PYTHON] + sys.argv)
+
 # Step 1 — Install dependencies
 print("\n📦 Step 1: Installing dependencies...")
-subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt", "-q"])
+subprocess.check_call([VENV_PYTHON, "-m", "pip", "install", "-r",
+                       os.path.join(BASE_DIR, "requirements.txt"), "-q"])
 print("✅ Dependencies installed!")
 
 # Step 2 — Check model files
@@ -76,18 +105,14 @@ print("\nPress Ctrl+C to stop.\n")
 import threading
 import time
 
+os.chdir(BASE_DIR)
+
 def start_api():
-    subprocess.call([
-        sys.executable, "-m", "uvicorn",
-        "api.main:app", "--port", "8000"
-    ])
+    subprocess.call([VENV_UV, "api.main:app", "--port", "8000"])
 
 api_thread = threading.Thread(target=start_api, daemon=True)
 api_thread.start()
 
 time.sleep(3)
 
-subprocess.call([
-    sys.executable, "-m", "streamlit",
-    "run", "dashboard/app.py"
-])
+subprocess.call([VENV_ST, "run", os.path.join(BASE_DIR, "dashboard/app.py")])

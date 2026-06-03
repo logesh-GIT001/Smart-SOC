@@ -120,4 +120,7 @@ api_thread.start()
 
 time.sleep(3)
 
-subprocess.call([VENV_ST, "run", os.path.join(BASE_DIR, "dashboard/app.py")])
+try:
+    subprocess.call([VENV_ST, "run", os.path.join(BASE_DIR, "dashboard/app.py")])
+except KeyboardInterrupt:
+    print("\n\n👋 Smart SOC stopped. Goodbye!")

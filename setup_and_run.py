@@ -36,11 +36,16 @@ if not os.path.exists(VENV_PYTHON):
     print("🔄 Restarting with venv Python...")
     os.execv(VENV_PYTHON, [VENV_PYTHON] + sys.argv)
 
-# Step 1 — Install dependencies
-print("\n📦 Step 1: Installing dependencies...")
-subprocess.check_call([VENV_PYTHON, "-m", "pip", "install", "-r",
-                       os.path.join(BASE_DIR, "requirements.txt"), "-q"])
-print("✅ Dependencies installed!")
+# Step 1 — Install dependencies (skip if already installed)
+print("\n📦 Step 1: Checking dependencies...")
+try:
+    import fastapi, uvicorn, shap, xgboost, sklearn, streamlit, joblib
+    print("✅ Dependencies already installed — skipping!")
+except ImportError:
+    print("   Installing... (this takes 2-3 min first time)")
+    subprocess.check_call([VENV_PYTHON, "-m", "pip", "install", "-r",
+                           os.path.join(BASE_DIR, "requirements.txt"), "-q"])
+    print("✅ Dependencies installed!")
 
 # Step 2 — Check model files
 print("\n🔍 Step 2: Checking model files...")
